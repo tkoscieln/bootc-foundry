@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# Expand the root partition to use the entire 60GB disk size
+ROOT_PART=$(findmnt -n -o SOURCE /)
+ROOT_DISK=$(lsblk -no PKNAME "${ROOT_PART}")
+ROOT_PART_NUM=$(lsblk -no PARTN "${ROOT_PART}")
+sudo growpart "/dev/${ROOT_DISK}" "${ROOT_PART_NUM}" || true
+sudo resize2fs "${ROOT_PART}" || true
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 IMAGES_DIR="${REPO_ROOT}/_images"
